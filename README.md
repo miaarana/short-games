@@ -1,2 +1,2 @@
 # short-games
-This project will contain different short games: rock, paper, scissors, and guess the number 
+This project will contain different short games: rock, paper, scissors, guess the number, and more to come
