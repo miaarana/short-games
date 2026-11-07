@@ -1,0 +1,193 @@
+//snake game - created this a while ago during my first year at CC 
+#include <iostream>
+#include <graphics.h>
+#include <conio.h>
+#include <stdlib.h>
+#include <time.h>
+
+using namespace std;
+
+// Game constants
+const int WIDTH = 600;
+const int HEIGHT = 400;
+const int CELL_SIZE = 20;
+
+// Directions
+enum Direction { STOP = 0, LEFT, RIGHT, UP, DOWN };
+Direction dir;
+
+// Snake variables
+int snakeX[100], snakeY[100];
+int tailLength;
+
+// Food variables
+int foodX, foodY;
+
+// Game state
+bool gameOver;
+int score;
+
+void Setup() {
+    gameOver = false;
+    dir = RIGHT; // Start moving right
+    tailLength = 3;
+
+    // Center starting position for the snake head
+    snakeX[0] = WIDTH / 2;
+    snakeY[0] = HEIGHT / 2;
+
+    // Initialize tail pieces right behind the head
+    for (int i = 1; i < tailLength; i++) {
+        snakeX[i] = snakeX[0] - (i * CELL_SIZE);
+        snakeY[i] = snakeY[0];
+    }
+
+    // Seed random number generator and place first food
+    srand(time(NULL));
+    foodX = (rand() % (WIDTH / CELL_SIZE)) * CELL_SIZE;
+    foodY = (rand() % (HEIGHT / CELL_SIZE)) * CELL_SIZE;
+
+    score = 0;
+}
+
+void Draw() {
+    // Clear screen for the new frame
+    cleardevice();
+
+    // Draw Map Border
+    setcolor(WHITE);
+    rectangle(0, 0, WIDTH, HEIGHT);
+
+    // Draw Food
+    setcolor(RED);
+    setfillstyle(SOLID_FILL, RED);
+    bar(foodX, foodY, foodX + CELL_SIZE, foodY + CELL_SIZE);
+
+    // Draw Snake Head
+    setcolor(GREEN);
+    setfillstyle(SOLID_FILL, GREEN);
+    bar(snakeX[0], snakeY[0], snakeX[0] + CELL_SIZE, snakeY[0] + CELL_SIZE);
+
+    // Draw Snake Tail
+    setcolor(LIGHTGREEN);
+    setfillstyle(SOLID_FILL, LIGHTGREEN);
+    for (int i = 1; i < tailLength; i++) {
+        bar(snakeX[i], snakeY[i], snakeX[i] + CELL_SIZE, snakeY[i] + CELL_SIZE);
+    }
+
+    // Display Score text
+    setcolor(WHITE);
+    char scoreStr[20];
+    sprintf(scoreStr, "Score: %d", score);
+    outtextxy(10, HEIGHT + 10, scoreStr);
+
+    // Double buffering page swap to prevent flickering
+    delay(100);
+}
+
+void Input() {
+    if (kbhit()) {
+        switch (getch()) {
+        case 75: // Left Arrow Key
+            if (dir != RIGHT) dir = LEFT;
+            break;
+        case 77: // Right Arrow Key
+            if (dir != LEFT) dir = RIGHT;
+            break;
+        case 72: // Up Arrow Key
+            if (dir != DOWN) dir = UP;
+            break;
+        case 80: // Down Arrow Key
+            if (dir != UP) dir = DOWN;
+            break;
+        case 'x': // Press 'X' to exit
+            gameOver = true;
+            break;
+        }
+    }
+}
+
+void Logic() {
+    // Save previous positions of tail parts
+    int prevX = snakeX[0];
+    int prevY = snakeY[0];
+    int prev2X, prev2Y;
+
+    // Shift tail positions forward
+    for (int i = 1; i < tailLength; i++) {
+        prev2X = snakeX[i];
+        prev2Y = snakeY[i];
+        snakeX[i] = prevX;
+        snakeY[i] = prevY;
+        prevX = prev2X;
+        prevY = prev2Y;
+    }
+
+    // Move the head based on current direction
+    switch (dir) {
+    case LEFT:
+        snakeX[0] -= CELL_SIZE;
+        break;
+    case RIGHT:
+        snakeX[0] += CELL_SIZE;
+        break;
+    case UP:
+        snakeY[0] -= CELL_SIZE;
+        break;
+    case DOWN:
+        snakeY[0] += CELL_SIZE;
+        break;
+    default:
+        break;
+    }
+
+    // Wall Collisions
+    if (snakeX[0] < 0 || snakeX[0] >= WIDTH || snakeY[0] < 0 || snakeY[0] >= HEIGHT) {
+        gameOver = true;
+    }
+
+    // Self Collisions
+    for (int i = 1; i < tailLength; i++) {
+        if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i]) {
+            gameOver = true;
+        }
+    }
+
+    // Food Collision (Eating mechanism)
+    if (snakeX[0] == foodX && snakeY[0] == foodY) {
+        score += 10;
+        tailLength++;
+        // Generate new food location aligned to the grid
+        foodX = (rand() % (WIDTH / CELL_SIZE)) * CELL_SIZE;
+        foodY = (rand() % (HEIGHT / CELL_SIZE)) * CELL_SIZE;
+    }
+}
+
+int main() {
+    // Initialize standard VGA graphics window
+    int gd = DETECT, gm;
+    // Window sized slightly taller to fit the score text underneath
+    initwindow(WIDTH + 1, HEIGHT + 40, "C++ Graphics Snake Game");
+
+    Setup();
+
+    // Main Game Loop
+    while (!gameOver) {
+        Draw();
+        Input();
+        Logic();
+    }
+
+    // Game Over screen
+    cleardevice();
+    setcolor(RED);
+    outtextxy(WIDTH / 2 - 40, HEIGHT / 2, "GAME OVER");
+
+    char finalScore[30];
+    sprintf(finalScore, "Final Score: %d", score);
+    outtextxy(WIDTH / 2 - 50, HEIGHT / 2 + 20, finalScore);
+
+    getch(); // Wait for user key press before closing
+    closegraph();
+    return 0;
+}
