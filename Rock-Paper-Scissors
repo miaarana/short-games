@@ -1,0 +1,115 @@
+//Rock-Paper-Scissors Game using C++ 
+
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+// Function declarations to keep code organized
+char getComputerChoice();
+char getUserChoice();
+void showChoice(char choice);
+void chooseWinner(char player, char computer);
+
+int main() {
+    // Seed the random number generator with the current time
+    srand(static_cast<unsigned int>(time(nullptr)));
+
+    char player;
+    char computer;
+    char playAgain;
+
+    cout << "=========================================\n";
+    cout << "   Welcome to Rock, Paper, Scissors!     \n";
+    cout << "=========================================\n";
+
+    cout << "This is your chance to play against a computer. Come and show off your skills! Do you think you can win? \n";
+
+    do {
+        player = getUserChoice();
+        cout << "\nYou chose: ";
+        showChoice(player);
+
+        cout << "-------------------\n";
+
+        computer = getComputerChoice();
+        cout << "Computer chose: ";
+        showChoice(computer);
+
+        chooseWinner(player, computer);
+
+        cout << "\nDo you want to play another round? (y/n): ";
+        cin >> playAgain;
+        cout << "-----------------------------------------\n";
+
+    } while (playAgain == 'y' || playAgain == 'Y');
+
+    cout << "------------------------------\n";
+    cout << "Thanks for playing! Have a great day or a great night! Goodbye.Hope you see you again soon! :) \n";
+    cout << "-------------------------------\n";
+    return 0;
+}
+
+// Generates a random choice for the computer
+char getComputerChoice() {
+    // rand() % 3 generates 0, 1, or 2
+    int num = rand() % 3;
+
+    if (num == 0) return 'r';
+    if (num == 1) return 'p';
+    return 's';
+}
+
+// Prompts the user and ensures valid input
+char getUserChoice() {
+    char choice;
+    do {
+        cout << "\nEnter (R) for Rock, (P) for Paper, or (S) for Scissors: ";
+        cin >> choice;
+
+        // Convert uppercase to lowercase if needed
+        if (choice == 'R') choice = 'r';
+        if (choice == 'P') choice = 'p';
+        if (choice == 'S') choice = 's';
+
+        if (choice != 'r' && choice != 'p' && choice != 's') {
+            cout << "Invalid selection! Please try again.\n";
+        }
+    } while (choice != 'r' && choice != 'p' && choice != 's');
+
+    return choice;
+}
+
+// Helper function to print out words instead of characters
+void showChoice(char choice) {
+    if (choice == 'r') 
+        cout << "Rock\n";
+    else if (choice == 'p') 
+        cout << "Paper\n";
+    else if (choice == 's') 
+       cout << "Scissors\n";
+}
+
+// Logic to determine the match result
+void chooseWinner(char player, char computer) {
+    if (player == computer) {
+        cout << "------------------\n";
+        cout << "** It's a tie! **\n";
+        cout << "-------------------\n";
+        return;
+    }
+
+    // Checking all player winning scenarios
+    if ((player == 'r' && computer == 's') ||
+        (player == 's' && computer == 'p') ||
+        (player == 'p' && computer == 'r')) {
+        cout << "--------------------------------\n";
+        cout << "** You win! Congratulations! **\n";
+        cout << "---------------------------------\n";
+    }
+    else {
+        cout << "***********************************************\n";
+        cout << "-- Computer wins! Better luck next time! -- \n";
+        cout << "***********************************************\n";
+    }
+}
