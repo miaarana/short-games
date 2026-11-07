@@ -1,0 +1,133 @@
+//Tic-Tac-Toe - You vs. the computer 
+#include<iostream>
+#include<vector>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+// Function to print the current state of the board
+void drawBoard(const vector<char>& board) {
+    cout << "\n";
+    cout << " " << board[0] << " | " << board[1] << " | " << board[2] << " \n";
+    cout << "---|---|---\n";
+    cout << " " << board[3] << " | " << board[4] << " | " << board[5] << " \n";
+    cout << "---|---|---\n";
+    cout << " " << board[6] << " | " << board[7] << " | " << board[8] << " \n";
+    cout << "\n";
+}
+
+// Function to check if a player has won
+bool checkWin(const vector<char>& board, char player) {
+    // Rows
+    if ((board[0] == player && board[1] == player && board[2] == player) ||
+        (board[3] == player && board[4] == player && board[5] == player) ||
+        (board[6] == player && board[7] == player && board[8] == player))
+        return true;
+
+    // Columns
+    if ((board[0] == player && board[3] == player && board[6] == player) ||
+        (board[1] == player && board[4] == player && board[7] == player) ||
+        (board[2] == player && board[5] == player && board[8] == player))
+        return true;
+
+    // Diagonals
+    if ((board[0] == player && board[4] == player && board[8] == player) ||
+        (board[2] == player && board[4] == player && board[6] == player))
+        return true;
+
+    return false;
+}
+
+// Function to check if the board is completely full (Draw)
+bool checkDraw(const vector<char>& board) {
+    for (int i = 0; i < 9; i++) {
+        if (board[i] != 'X' && board[i] != 'O') {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Logic for the human player's turn
+void playerTurn(vector<char>& board) {
+    int choice;
+    while (true) {
+        cout << "Enter your move (1-9): ";
+        cin >> choice;
+        choice--; // Convert to 0-indexed positioning
+
+        if (choice >= 0 && choice < 9 && board[choice] != 'X' && board[choice] != 'O') {
+            board[choice] = 'X';
+            break;
+        }
+        else {
+            cout << "Invalid move! Spot is either taken or out of range. Try again.\n";
+        }
+    }
+}
+
+// Logic for the computer's turn using random selection
+void computerTurn(vector<char>& board) {
+    cout << "Computer is making a move...\n";
+    while (true) {
+        int choice = rand() % 9; // Pick a random slot between 0 and 8
+        if (board[choice] != 'X' && board[choice] != 'O') {
+            board[choice] = 'O';
+            break;
+        }
+    }
+}
+
+int main() {
+    // Seed the random number generator once at startup
+    srand(time(0));
+
+    // Initialize board with placeholder numbers '1' through '9'
+    vector<char> board = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
+    cout << "=========================\n";
+    cout << "  Tic-Tac-Toe: You vs Computer  \n";
+    cout << "=========================\n";
+    cout << "You are 'X' | Computer is 'O'\n";
+
+    cout << endl;
+    cout << "Small note: Computer move will appear after you make your next move\n";
+    cout << "*******************************************************************\n";
+
+    drawBoard(board);
+
+    while (true) {
+        // 1. Human Turn
+        playerTurn(board);
+        drawBoard(board);
+        if (checkWin(board, 'X')) {
+            cout << "*************************\n";
+            cout << "Congratulations! You win!\n";
+            cout << "*************************\n";
+            break;
+        }
+        if (checkDraw(board)) {
+            cout << "-------------\n";
+            cout << "It's a draw!\n";
+            cout << "--------------\n";
+            break;
+        }
+
+        // 2. Computer Turn
+        computerTurn(board);
+        drawBoard(board);
+        if (checkWin(board, 'O')) {
+            cout << "**************************************\n";
+            cout << "Computer wins! Better luck next time.\n";
+            cout << "*************************************\n";
+            break;
+        }
+        if (checkDraw(board)) {
+            cout << "It's a draw!\n";
+            break;
+        }
+    }
+
+    return 0;
+}
